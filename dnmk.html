@@ -1,0 +1,169 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<title>dnmk - eggamejs</title>
+<meta property="og:image" content="dnmk.png"/>
+<link rel="apple-touch-icon" href="dnmk.png"/>
+<script src="eggame.js"></script>
+<!--<script src="https://taisukef.github.io/egarjs/egarjs.js"></script>-->
+<script>"use strict"
+const main = function(app) {
+	let state = 0 // 0: title, 1: game, 2: end
+
+
+	let x, y, vy, ay
+	const hitw2 = 10 * 10
+	let score = 0
+
+	let enemy = []
+	let waitcnt
+	let cntspawn
+	let nspawn = 1000
+	let wspawn
+	let venemy
+	let phase
+	let pr
+	let pg
+	let pb
+	let ra
+	let ga
+	let ba 
+
+	/*敵の動き*/const addEnemy = function(ex, ey, v) {
+		const th = Math.atan2(ey - y, ex - x) + Math.PI
+		enemy.push({
+			x: ex, y: ey,
+			vx: Math.cos(th) * v, vy: Math.sin(th) * v
+		})
+
+	}
+	/*敵の位置*/const tickEnemies = function(g) {
+
+		g.setColor(ra, ga, ba)
+		let hit = false
+		for (let i = 0; i < enemy.length; i++) {
+			let e = enemy[i]
+			e.x += e.vx
+			e.y += e.vy
+			g.fillCircle(e.x, e.y, 10, 10)
+	/*敵が消える位置*/	if (e.x < 10) {
+				enemy.splice(i, 5) // [i] = null
+				i--
+			}
+			const dx = x - e.x
+			const dy = y - e.y
+			if (dx * dx + dy * dy < hitw2)
+				hit = true
+		}
+		return hit
+
+	}
+	/*プレイヤーの位置*/const init = function() {
+		x = 100
+		y = 500
+		vy = 0//落下の初速度
+		ay = 0//落下の加速度
+		enemy = []
+		waitcnt = 1//敵が出る間隔
+		score = 0//スコア
+		let ranph =(Math.random()*3)>>0
+		phase = ranph//敵の長さ
+	}
+	/*場面移動*/app.loop = function(g, ts, dt, vw) {
+
+		/*start画面*/if (state == 0) {
+			g.setColor(0, 0, 0)
+			g.setFontSize(220)
+			g.fillText("dnmk", 250, 500)
+            
+            pr =(Math.random()*255)>>0
+	        pg =(Math.random()*255)>>0
+	        pb =(Math.random()*255)>>0
+
+
+		} /*game画面*/else if (state == 1) {
+			g.setColor(pr, pg, pb, 1)
+			g.fillRect(x, y, 20, 20)
+			y += vy
+			vy += ay
+			/*画面端のゲームオーバー*/if (y < 0 || y > 1000) {
+				state = 2
+			}
+			/*敵の出現位置*/if (!waitcnt) {
+				let yy =(Math.random()*1000)>>0
+				const th = cntspawn / 30 * Math.PI
+				const ex = Math.cos(th) * wspawn + (1000 - 100 - wspawn)
+				const ey = Math.sin(th) * 400 + 500
+				addEnemy(1000, yy, venemy)
+				cntspawn++
+				if (cntspawn == nspawn)
+					waitcnt = 1
+			} else {
+				waitcnt--
+				if (!waitcnt) {
+					phase++
+					cntspawn = 0
+					wspawn = rnd(3) * 100
+					nspawn = phase * 10
+					venemy = 1 + rnd(3) * 3
+				}
+			}
+			if (tickEnemies(g))
+				state = 2
+			score++
+		} /*end画面*/else if (state == 2) {
+			g.setColor(255, 0, 0)
+			g.setFontSize(100)
+			g.fillText("the end...", 260, 400)
+			g.fillText("score: " + score, 260, 600)
+		}
+	}
+
+	/*操作時の動作*/app.tap = function() {
+    
+        document.onkeydown = function (event){
+            if(event.key === 'w'){
+            	y = y - 10
+
+        ra =(Math.random()*255)>>0
+        ga =(Math.random()*255)>>0
+        ba =(Math.random()*255)>>0
+            }
+            else if(event.key === 'a'){
+            	x = x - 10
+
+        ra =(Math.random()*255)>>0
+        ga =(Math.random()*255)>>0
+        ba =(Math.random()*255)>>0
+            }
+            else if(event.key === 's'){
+            	y = y + 10
+
+        ra =(Math.random()*255)>>0
+        ga =(Math.random()*255)>>0
+        ba =(Math.random()*255)>>0
+            }
+            else if(event.key === 'd'){
+            	x = x + 10
+
+        ra =(Math.random()*255)>>0
+        ga =(Math.random()*255)>>0
+        ba =(Math.random()*255)>>0
+            }
+        }
+
+		/*クリック時の動作*/if (state == 0) {
+			state = 1
+					init()
+		} else if (state == 1) {
+
+		ra =(Math.random()*255)>>0
+        ga =(Math.random()*255)>>0
+        ba =(Math.random()*255)>>0
+
+		} else if (state == 2) {
+			state = 0
+		}
+	}
+}
+</script>
+</head>
+</html>
